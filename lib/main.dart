@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // 🔹 Add this
 import 'package:my_portfolio/about.dart';
+import 'package:my_portfolio/experience.dart';
 import 'package:my_portfolio/home.dart';
 
 void main() {
@@ -11,16 +13,33 @@ class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
 }
+
 class _MyAppState extends State<MyApp> {
   ThemeMode _mode = ThemeMode.light;
 
-  void _toggleTheme() {
+  @override
+  void initState() {
+    super.initState();
+    _loadTheme(); 
+  }
+
+  // 🔹 Load theme from SharedPreferences
+  Future<void> _loadTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isDark = prefs.getBool('isDark') ?? false;
     setState(() {
-      _mode = _mode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+      _mode = isDark ? ThemeMode.dark : ThemeMode.light;
     });
   }
 
-  // This widget is the root of your application.
+  Future<void> _toggleTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _mode = _mode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    });
+    await prefs.setBool('isDark', _mode == ThemeMode.dark);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -37,7 +56,7 @@ class _MyAppState extends State<MyApp> {
       themeMode: _mode,
       home: Mainscaffold(toggleTheme: _toggleTheme),
     );
-}
+  }
 }
 
 class Mainscaffold extends StatefulWidget {
@@ -51,40 +70,38 @@ class Mainscaffold extends StatefulWidget {
 
 class _MainscaffoldState extends State<Mainscaffold> {
   int _currentIndex = 0;
-  final List<Widget> _tabs =
-  [ HomeScreen(),AboutScreen(),];
-  /*
-  ExperienceTab(),
+  final List<Widget> _tabs = [
+    HomeScreen(),
+    AboutScreen(),
+    ExperienceScreen(),
   ];
-  */
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text('My Portfolio')),
         actions: [
-          IconButton(onPressed: widget.toggleTheme, icon: Icon(Icons.brightness_6_rounded))
+          IconButton(
+            onPressed: widget.toggleTheme,
+            icon: Icon(Icons.brightness_6_rounded),
+          )
         ],
       ),
       body: _tabs[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'About')
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'About'),
+          BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Experience'),
         ],
         onTap: (index) {
           setState(() {
             _currentIndex = index;
           });
         },
-      )
+      ),
     );
   }
-
-
 }
