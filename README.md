@@ -52,3 +52,7 @@ Screen recordings showing the app functionality are included in the submission f
 
 
 - Downloadable APK link: Google Drive APK (https://drive.google.com/file/d/13J3CmFZa32hwdySTxmLX7US2GAGCayOf/view?usp=sharing)
+
+## 🔧 Environment Variables
+
+This project does not require any real API keys because all data (profile, experience, projects, and contact info) is static and stored in the app.
